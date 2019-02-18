@@ -1,0 +1,166 @@
+<html>
+<style>
+body {
+	background-color: #000;
+	margin: 0px;
+	overflow: hidden;
+}
+
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="js/three.min.js"></script>
+<script src="js/TrackballControls.js"></script>
+<body>
+
+<script>
+// three.js animataed line using BufferGeometry
+
+var renderer, scene, camera, controls;
+
+var line;
+var MAX_POINTS = 50000;
+var drawCount;
+
+// attractor's initials
+var x = -12.1;
+var y = -22;
+var z = 0;
+
+var a = 10; // sigma
+var b = 28; // beta
+var c = 8/3; // rho
+
+var dt, dx, dy, dz;
+
+var cardRules = new Array;
+    $.get('userFile.txt', function(data1){
+			var array = data1.replace(new RegExp(" ", 'g'), "\n");
+            array = array.split('\n');
+			//array = new Float32Array(array);
+			window.GlobalMyArray=array; 
+            //console.log(GlobalMyArray.length);
+			init();
+			animate();
+			
+        });
+
+//init();
+//animate();
+
+
+	//var cardRules = new Array;
+
+
+function init() {
+
+	
+	//console.log(MyArray);
+	// info
+	var info = document.createElement( 'div' );
+	info.style.position = 'absolute';
+	info.style.top = '30px';
+	info.style.width = '100%';
+	info.style.textAlign = 'center';
+	info.style.color = '#fff';
+	info.style.fontWeight = 'bold';
+	info.style.backgroundColor = 'transparent';
+	info.style.zIndex = '1';
+	info.style.fontFamily = 'Monospace';
+	info.innerHTML = "three.js animataed line using BufferGeometry";
+	document.body.appendChild( info );
+
+	// renderer
+	renderer = new THREE.WebGLRenderer();
+	renderer.setPixelRatio( window.devicePixelRatio );
+	renderer.setSize( window.innerWidth, window.innerHeight );
+	document.body.appendChild( renderer.domElement );
+
+	// scene
+	scene = new THREE.Scene();
+
+	// camera
+	camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 10000 );
+	camera.position.set( 0, 0, 80 );
+  
+    // controls
+    controls = new THREE.TrackballControls(camera, renderer.domElememnt);
+
+	// geometry
+	var geometry = new THREE.BufferGeometry();
+	//console.log(geometry);
+
+	// attributes
+	//myfunction('userFile.txt');
+	var positions = new Float32Array(GlobalMyArray); // 3 vertices per point
+	//var positions = new Float32Array(array); // 3 vertices per point
+	//console.log(positions);
+	geometry.addAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
+
+	// drawcalls
+	drawCount = 2; // draw the first 2 points, only
+	geometry.setDrawRange( 0, drawCount );
+
+	// material
+	var material = new THREE.LineBasicMaterial( { color: 0xff0000, linewidth: 2 } );
+
+	// line
+	line = new THREE.Line( geometry,  material );
+	scene.add( line );
+
+	// update positions
+	//updatePositions();
+
+}
+
+
+
+// render
+function render() {
+
+	renderer.render( scene, camera );
+
+}
+
+
+//
+/*MyArray = [];
+data1 = 'userFile.txt'
+$.myfunction = function(data1){
+		array = data1.replace(new RegExp(" ", 'g'), "\n");
+		array = array.split('\n');
+		array1 = new Float32Array(array)
+		//console.log(array1);
+		MyArray=array1;
+		console.log(MyArray);
+	};*/
+
+
+
+// animate
+function animate() {
+
+	requestAnimationFrame( animate );
+
+	drawCount = ( drawCount + 1 ) % MAX_POINTS;
+
+	line.geometry.setDrawRange( 0, drawCount );
+
+	if ( drawCount === 0 ) {
+		drawCount=1;
+		// periodically, generate new data
+
+		//updatePositions();
+
+		//line.geo	metry.attributes.position.needsUpdate = true; // required after the first render
+
+		line.material.color.setHSL( Math.random(), 1, 0.5 );
+	}
+	controls.update();
+	render();
+
+}
+
+</script>
+
+</body>
+</html>
